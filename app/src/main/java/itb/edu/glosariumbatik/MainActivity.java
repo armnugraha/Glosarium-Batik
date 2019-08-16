@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // attaching onclickListener
         buttonScan.setOnClickListener(this);
+
+        genWeb("http://batik.tf.itb.ac.id/");
     }
 
     // Mendapatkan hasil scan
@@ -72,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         // inisialisasi IntentIntegrator(scanQR)
         intentIntegrator = new IntentIntegrator(this);
+        intentIntegrator.setPrompt("Pindai untuk detail lebih jelas");
         intentIntegrator.initiateScan();
     }
 
