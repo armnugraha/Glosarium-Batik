@@ -1,8 +1,13 @@
 package itb.edu.glosariumbatik;
 
 import android.content.Intent;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -20,25 +25,60 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     // View Object
     private Button buttonScan;
+
     private TextView textViewNama, textViewTinggi;
 
     //qr code scanner object
     private IntentIntegrator intentIntegrator;
 
+//    web view
     private WebView view;
 
+//    toolbar
+    private Toolbar mTopToolbar;
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // initialize object
-        buttonScan = (Button) findViewById(R.id.buttonScan);
-
-        // attaching onclickListener
-        buttonScan.setOnClickListener(this);
+//        // initialize object
+//        buttonScan = (Button) findViewById(R.id.buttonScan);
+//
+//        // attaching onclickListener
+//        buttonScan.setOnClickListener(this);
 
         genWeb("http://batik.tf.itb.ac.id/");
+
+        mTopToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(mTopToolbar);
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_qr) {
+            // inisialisasi IntentIntegrator(scanQR)
+            intentIntegrator = new IntentIntegrator(this);
+            intentIntegrator.setPrompt("Pindai untuk detail lebih jelas");
+            intentIntegrator.initiateScan();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     // Mendapatkan hasil scan
@@ -52,18 +92,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }else{
                 // jika qrcode berisi data
                 genWeb(result.getContents());
-//                try{
-//                    // converting the data json
-//                    JSONObject object = new JSONObject(result.getContents());
-//                    // atur nilai ke textviews
-//                    textViewNama.setText(object.getString("nama"));
-//                    textViewTinggi.setText(object.getString("tinggi"));
-//                }catch (JSONException e){
-//                    e.printStackTrace();
-//                    // jika format encoded tidak sesuai maka hasil
-//                    // ditampilkan ke toast
-//                    Toast.makeText(this, result.getContents(), Toast.LENGTH_SHORT).show();
-//                }
             }
         }else{
             super.onActivityResult(requestCode, resultCode, data);
@@ -81,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     void genWeb(String url) {
         view = (WebView) this.findViewById(R.id.webView);
         view.getSettings().setJavaScriptEnabled(true);
+        view.getSettings().setUserAgentString(System.getProperty("http.agent")+" batikApp");
         view.setWebViewClient(new MyBrowser());
         view.loadUrl(url);
     }
